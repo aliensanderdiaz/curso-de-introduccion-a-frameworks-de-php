@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <title>Curso de Introducción a Frameworks de PHP</title>
+</head>
+
+<body>
+    <header class="text-center">
+        <h1>Curso de Introducción a Frameworks de PHP</h1>
+    </header>
+    <main class="container">
+        <hr>
+
+        <section class="row">
+            <article class="col">
+                <h2>Sección 1 de 14 - Un proyecto en PHP</h2>
+
+            </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 2 de 14 - Frameworks PHP</h2>
+            <ul>
+                <li>Laravel</li>
+                <li>Symphony</li>
+            </ul>
+
+            <pre class="prettyprint">
+                    
+                > composer init
+            </pre>
+
+            <pre class="prettyprint">
+                    
+                {
+                    "name": "alexa/curso-de-introduccion-a-frameworks-de-php",
+                    "description": "Basic Project",
+                    "autoload": {
+                        "psr-4": {
+                            "App\\": "app/"
+                        },
+                        "files": [
+                            "app/helpers.php"
+                        ]
+                    },
+                    "authors": [
+                        {
+                            "name": "Alexander Diaz",
+                            "email": "aliensanderdiaz@gmail.com"
+                        }
+                    ],
+                    "require": {}
+                }
+            </pre>
+
+            <pre class="prettyprint">
+                    
+                > composer dump
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 3 de 14 - Estructura de Carpetas</h2>
+            <pre class="prettyprint">
+                    
+                > tree /f
+            </pre>
+            <pre class="prettyprint">
+                    
+                │
+                │   composer.json
+                │
+                ├───app
+                │   │   helpers.php
+                │   │
+                │   └───Http
+                │       │   Request.php
+                │       │   Response.php
+                │       │
+                │       └───Controllers
+                ├───public
+                │       index.php
+                │
+                ├───vendor
+                │   │   autoload.php
+                │   │
+                │   └───composer
+                │           autoload_classmap.php
+                │           autoload_files.php
+                │           autoload_namespaces.php
+                │           autoload_psr4.php
+                │           autoload_real.php
+                │           autoload_static.php
+                │           ClassLoader.php
+                │           LICENSE
+                │
+                └───views
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 4 de 14 - Front Controller</h2>
+            <pre class="prettyprint">
+                    
+                > php -S localhost:3000
+            </pre>
+            <pre class="prettyprint">
+                // public/index.php
+                    
+                &lt?php
+
+                require __DIR__ . '/../vendor/autoload.php';
+                
+                $request = new App\Http\Request;
+                $request->send();
+                
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 5 de 14 - Request</h2>
+            <pre class="prettyprint">
+                    
+                &lt?php
+
+                namespace App\Http;
+                
+                class Request
+                {
+                    protected $segments = [];
+                    protected $controller;
+                    protected $method;
+                
+                    public function __construct()
+                    {
+                        $this->segments = explode('/', $_SERVER['REQUEST_URI']);
+                
+                        $this->setController();
+                        $this->setMethod();
+                    }
+                
+                    public function setController()
+                    {
+                        $this->controller = empty($this->segments[1])
+                            ? 'home'
+                            : $this->segments[1];
+                    }
+                
+                    public function setMethod()
+                    {
+                        $this->method = empty($this->segments[2])
+                            ? 'index'
+                            : $this->segments[2];
+                    }
+                
+                    public function send()
+                    {
+                        
+                    }
+                }
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 6 de 14 - Request: método send</h2>
+            <pre class="prettyprint">
+                    
+                public function getController()
+                {
+                    // home, Home, HomeController
+                    $controller = ucfirst($this->controller);
+                    return "App\Http\Controllers\\{$controller}Controller";
+                }
+            
+                public function getMethod()
+                {
+                    return $this->method;
+                }
+            
+                public function send()
+                {
+                    $controller = $this->getController();
+                    $method = $this->getMethod();
+            
+                    $response = call_user_func([
+                        new $controller,
+                        $method
+                    ]);
+            
+                    $response->send();
+                }
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 7 de 14 - Response</h2>
+            <pre class="prettyprint">
+                    
+                &lt?php
+
+                namespace App\Http;
+                
+                class Response
+                {
+                    protected $view; // array, json, pdf
+                
+                    public function __construct($view)
+                    {
+                        $this->view = $view; // home, contact
+                    }
+                
+                    public function getView()
+                    {
+                        return $this->view;
+                    }
+                
+                    public function send()
+                    {
+                        $view = $this->getView();
+                
+                        $content = file_get_contents(__DIR__ . "/../../views/$view.php");
+                
+                        require __DIR__ . "/../../views/layout.php";
+                    }
+                }
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 8 de 14 - Controllers</h2>
+            <pre class="prettyprint">
+                    
+                &lt?php
+
+                namespace App\Http\Controllers;
+                use App\Http\Response;
+                
+                class HomeController
+                {
+                    public function index()
+                    {
+                        return new Response('home');
+                    }
+                }
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 9 de 14 - Views</h2>
+            <pre class="prettyprint">
+                    
+                &lt!DOCTYPE html>
+                &lthtml lang="en">
+                &lthead>
+                    &ltmeta charset="UTF-8">
+                    &ltmeta http-equiv="X-UA-Compatible" content="IE=edge">
+                    &ltmeta name="viewport" content="width=device-width, initial-scale=1.0">
+                    &lttitle>Layout&lt/title>
+                    &lt!-- CSS only -->
+                &ltlink href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+                &lt/head>
+                &ltbody>
+                    &ltnav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+                        &ltdiv class="container">
+                            &lta href="/" class="navbar-brand h1">FW&lt/a>
+                        &lt/div>
+                    &lt/nav>
+                    &ltdiv class="container">
+                        &ltdiv class="row">
+                            &lt?= $content ?>
+                        &lt/div>
+                    &lt/div>
+                &lt/body>
+                &lt/html>
+            </pre>
+            <pre class="prettyprint">
+                    
+            &ltdiv class="col-8">
+                &lth1>Página Home&lt/h1>
+                &ltp>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum vel, neque fuga aperiam, veritatis ipsa sunt molestiae dolore laboriosam cumque eum corrupti modi corporis enim eius deserunt? Debitis, impedit officiis.&lt/p>
+            &lt/div>
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 10 de 14 - Helpers</h2>
+            <pre class="prettyprint">
+                    
+                &lt?php
+
+                if (!function_exists('view')) {
+                    function view($view) {
+                        return new App\Http\Response($view);
+                    }
+                }
+                
+                if (!function_exists('viewPath')) {
+                    function viewPath($view) {
+                        return __DIR__ . "/../views/$view.php";
+                    }
+                }
+            </pre>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 11 de 14 - Repaso Final</h2>
+            
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 12 de 14 - Los Frameworks modernos</h2>
+            
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 13 de 14 - Ventajs de usar frameworks</h2>
+            <div class="MaterialLecture-text"><p>Hoy en día los <strong>frameworks</strong> son la mejor herramienta que tenemos a la mano como programadores, es la opción que debemos usar siempre. La estructura que aprendimos se presenta como una estructura de carpetas sólida y segura, esto te ayudará a responder el “porqué” de muchas cosas respecto a <strong>Laravel</strong>, <strong>Symfony</strong> y otros frameworks.</p>
+                <p>Estos ofrecen una estructura sencilla, útil y muy robusta aprobada por la mayoría de las personas en la comunidad. El único objetivo aquí es enseñarte todo lo necesario para entender a un framework como Laravel o Symfony, estos breves textos, clases y conceptos te darán la orientación necesaria para que puedas extender, comprender y adaptar de mejor manera estos frameworks modernos a tu necesidad única y particular.</p>
+                <p>Siempre hemos tenido dudas respecto a dónde colocar los archivos fuentes de Javascript, imágenes, archivos finales de Javascript, archivos fuentes de CSS y archivos procesados de CSS, paquetes externos y separación de lógica, vista, controladores, etc. La idea es aprender de estas grandes herramientas y seguir su estándar para crear proyectos profesionales.</p>
+                <p>Cuando se comienza con el lenguaje PHP es complicado adoptar una estructura útil y estándar debido a su flexibilidad, es difícil conseguir la mejor forma de organizar un proyecto. Mi consejo es claro, puntual y directo, leamos código y aprendamos de ellos, en este caso lee el código de Laravel y Symfony.</p>
+                <p>Los frameworks nos ayudan respecto a los siguiente puntos:</p>
+                <ol>
+                <li>Desde su descarga todo está organizado.</li>
+                <li>No reinventamos la rueda.</li>
+                <li>Poseen una gran arquitectura.</li>
+                <li>La seguridad ya está configurada y probada.</li>
+                <li>Respaldo y ayuda de la comunidad.</li>
+                <li>Más oportunidad de empleo.</li>
+                <li>Mejor trabajo en equipo.</li>
+                </ol>
+                <p>Estas cosas reafirman que el desarrollo con frameworks es cada vez más real por todas las soluciones que ofrecen. Lo podemos comprender como una herramienta más de trabajo y aprendimos PHP para comprenderlos mejor.</p>
+                <p>Las características notables son:</p>
+                <ol>
+                <li>Administración de plantillas.</li>
+                <li>Manejo fácil y sencillo respecto a una base de datos.</li>
+                <li>Sistema de rutas completo y profesional.</li>
+                <li>Administrador de peticiones.</li>
+                <li>Documentación y comunidad.</li>
+                <li>Rápido desarrollo y actualización.</li>
+                <li>Sencillo mantenimiento.</li>
+                <li>Manejo correcto de peticiones y respuestas.</li>
+                <li>Apertura para trabajar con otros proyectos.</li>
+                <li>Comandos propios para acelerar el trabajo.</li>
+                <li>Manejo de caché.</li>
+                <li>Manejo profesional de archivos.</li>
+                <li>Sistema de email incluido.</li>
+                <li>Sistema adecuado para crear proyectos con testing.</li>
+                <li>Y mucho más.</li>
+                </ol>
+                <p>El potencial de estos proyectos no se puede comparar con nada ya que nos permiten crear cualquier proyecto a nuestra medida. Es solo descargar el framework (la plantilla) y comenzar a construir nuestro proyecto personalizado. Esto no quiere decir que todos los proyectos sean iguales y esta es otra ventaja, podemos cada vez crear algo único y totalmente personalizado.</p>
+                <p>Todo gira entorno a:</p>
+                <ol>
+                <li>Petición</li>
+                <li>Procesamiento</li>
+                <li>Respuesta</li>
+                </ol>
+                <p>Descárgalos y comienza a construir cosas asombrosas.</p>
+                </div>
+          </article>
+        </section>
+
+        <hr>
+        
+        <section class="row">
+          <article class="col">
+            <h2>Sección 14 de 14 - Despedida</h2>
+            
+          </article>
+        </section>
+
+
+
+
+
+
+
+
+
+
+
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

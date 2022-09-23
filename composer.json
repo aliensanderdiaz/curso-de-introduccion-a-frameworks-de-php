@@ -1,0 +1,19 @@
+{
+    "name": "alexa/curso-de-introduccion-a-frameworks-de-php",
+    "description": "Basic Project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Alexander Diaz",
+            "email": "aliensanderdiaz@gmail.com"
+        }
+    ],
+    "require": {}
+}
